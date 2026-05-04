@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thiago Vilar — Cibersegurança</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --bg: #0e0c15;
+  --surface: #13101f;
+  --surface2: #1a1628;
+  --border: rgba(160, 130, 255, 0.1);
+  --border-hover: rgba(160, 130, 255, 0.28);
+  --purple: #a07fff;
+  --purple-dim: #6b52c8;
+  --purple-bright: #c4a8ff;
+  --cyan: #5df0d8;
+  --cyan-dim: #2bb8a0;
+  --text: #ede9ff;
+  --text-2: #8a85a8;
+  --text-3: #4e4a6a;
+  --green: #50dfa0;
+  --amber: #f0b840;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+/* subtle noise */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.4;
+}
+
+/* glow */
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-1 { width: 420px; height: 420px; background: #5b3fc0; opacity: 0.13; top: -140px; right: -80px; }
+.orb-2 { width: 280px; height: 280px; background: #1e8a78; opacity: 0.1; bottom: 10%; left: -60px; }
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3rem;
+  background: rgba(14,12,21,0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--purple);
+  letter-spacing: 0.06em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text-3);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--purple); }
+
+.nav-dot {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--green);
+}
+.dot {
+  width: 5px; height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* LAYOUT */
+.wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 100px 2rem 60px;
+  max-width: 860px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 1.75rem;
+}
+
+.hero-name {
+  font-family: 'Lora', serif;
+  font-size: clamp(2.8rem, 6vw, 4.8rem);
+  font-weight: 500;
+  line-height: 1.08;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
+}
+
+.hero-name em {
+  font-style: italic;
+  color: var(--purple-bright);
+}
+
+.hero-role {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--text-2);
+  margin-bottom: 2rem;
+  letter-spacing: 0.04em;
+}
+
+.hero-role span { color: var(--purple); }
+
+.hero-bio {
+  font-size: 15px;
+  color: var(--text-2);
+  max-width: 500px;
+  line-height: 1.85;
+  margin-bottom: 2.5rem;
+  font-weight: 300;
+}
+
+.hero-bio strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.cta-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  padding: 10px 22px;
+  border-radius: 5px;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: all 0.22s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-fill {
+  background: var(--purple-dim);
+  color: #fff;
+  border: 1px solid transparent;
+}
+.btn-fill:hover {
+  background: var(--purple);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107,82,200,0.4);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border-hover);
+}
+.btn-ghost:hover {
+  color: var(--purple-bright);
+  border-color: var(--purple);
+  transform: translateY(-2px);
+}
+
+/* SECTION */
+section { padding: 90px 0; position: relative; z-index: 1; }
+
+.sec-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--cyan-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.sec-title {
+  font-family: 'Lora', serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.sec-rule {
+  width: 36px; height: 1px;
+  background: var(--purple-dim);
+  margin-bottom: 2.5rem;
+}
+
+hr.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+}
+
+/* SOBRE */
+.sobre-text {
+  max-width: 620px;
+  color: var(--text-2);
+  font-weight: 300;
+  line-height: 1.9;
+  font-size: 15px;
+}
+.sobre-text p { margin-bottom: 1rem; }
+.sobre-text strong { color: var(--text); font-weight: 500; }
+
+.sobre-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 1.75rem;
+}
+
+.pill {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  border: 1px solid;
+}
+.pill-p { background: rgba(160,127,255,0.08); color: var(--purple-bright); border-color: rgba(160,127,255,0.22); }
+.pill-c { background: rgba(93,240,216,0.06); color: var(--cyan); border-color: rgba(93,240,216,0.18); }
+.pill-g { background: rgba(80,223,160,0.06); color: var(--green); border-color: rgba(80,223,160,0.18); }
+.pill-a { background: rgba(240,184,64,0.07); color: var(--amber); border-color: rgba(240,184,64,0.2); }
+
+/* EXPERIÊNCIA */
+.exp-item {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0 2rem;
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.exp-item:first-child { border-top: 1px solid var(--border); }
+
+.exp-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+  padding-top: 3px;
+  line-height: 1.6;
+}
+
+.exp-company {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--purple);
+  margin-bottom: 3px;
+  letter-spacing: 0.04em;
+}
+
+.exp-role {
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 0.6rem;
+}
+
+.exp-list {
+  list-style: none;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.8;
+}
+.exp-list li::before {
+  content: '–';
+  color: var(--purple-dim);
+  margin-right: 8px;
+}
+
+/* FORMAÇÃO */
+.edu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.edu-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.edu-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+.edu-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.edu-course {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 3px;
+  line-height: 1.4;
+}
+
+.edu-inst {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+/* CERTIFICAÇÕES */
+.cert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cert-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  gap: 1rem;
+  transition: all 0.18s;
+}
+.cert-row:first-child { border-top: 1px solid var(--border); }
+.cert-row:hover .cert-name { color: var(--purple-bright); }
+
+.cert-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cert-icon {
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.cert-name {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+  transition: color 0.18s;
+}
+
+.cert-issuer {
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.cert-status {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.status-done { background: rgba(80,223,160,0.08); color: var(--green); border: 1px solid rgba(80,223,160,0.2); }
+.status-soon { background: rgba(240,184,64,0.08); color: var(--amber); border: 1px solid rgba(240,184,64,0.2); }
+
+/* HABILIDADES */
+.skills-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem 3rem;
+}
+
+.skill-group-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.skill-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* CONTATO */
+.contact-block {
+  max-width: 480px;
+}
+
+.contact-text {
+  color: var(--text-2);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.85;
+  margin-bottom: 2rem;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text-2);
+  font-size: 14px;
+  transition: color 0.18s;
+}
+.contact-link:first-child { border-top: 1px solid var(--border); }
+.contact-link:hover { color: var(--purple-bright); }
+.contact-link span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+  width: 72px;
+  flex-shrink: 0;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 1.75rem 2rem;
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+  position: relative;
+  z-index: 1;
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  nav { padding: 0 1.25rem; }
+  .nav-links, .nav-dot { display: none; }
+  .wrap { padding: 0 1.25rem; }
+  .hero { padding: 90px 1.25rem 50px; }
+  .exp-item { grid-template-columns: 1fr; gap: 4px; }
+  .edu-grid, .skills-cols { grid-template-columns: 1fr; }
+}
+
+/* scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.revealed { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<div class="glow-orb orb-1"></div>
+<div class="glow-orb orb-2"></div>
+
+<nav>
+  <div class="nav-name">thiago.vilar</div>
+  <ul class="nav-links">
+    <li><a href="#sobre">sobre</a></li>
+    <li><a href="#formacao">formação</a></li>
+    <li><a href="#certs">certificações</a></li>
+    <li><a href="#contato">contato</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1 class="hero-name">Thiago <em>Vilar</em></h1>
+  <p class="hero-role">// <span>Analista de Cibersegurança</span> · Blue Team</p>
+  <p class="hero-bio">
+    Graduado em Análise e Desenvolvimento de Sistemas e cursando Segurança da Informação no SENAC. 
+    Possuo base técnica em redes de computadores, 
+    administração de banco de dados e sistemas Linux, 
+    combinada com visão organizacional desenvolvida em ambiente corporativo
+  </p>
+  <div class="cta-row">
+    <a href="#contato" class="btn btn-fill">Entre em contato →</a>
+    <a href="#certs" class="btn btn-ghost">Ver certificações</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SOBRE -->
+<section id="sobre">
+  <div class="wrap">
+    <p class="sec-label reveal">01 · sobre</p>
+    <h2 class="sec-title reveal">Quem sou</h2>
+    <div class="sec-rule reveal"></div>
+    <div class="sobre-text reveal">
+      <p>
+        Tenho formação em <strong>Análise Desenvolvimento de Sistemas</strong> e sou graduando em <strong>Segurança da Informação</strong> pelo SENAC.
+        Minha trajetória combina <strong>base técnica em TI</strong>
+        com visão organizacional adquirida em experiência de suporte e administração de sistemas.
+      </p>
+      <p>
+        Meu interesse principal é <strong>defesa cibernética</strong> — monitoramento, análise de
+        ameaças e resposta a incidentes. Invisto continuamente em certificações e aprendizado prático
+        para construir a base necessária para atuar como analista Blue Team.
+      </p>
+      <p>
+        Inglês em nível B2, o que me permite consumir documentação técnica e materiais
+        internacionais sem barreiras.
+      </p>
+    </div>
+    <div class="sobre-tags reveal">
+      <span class="pill pill-p">Blue Team</span>
+      <span class="pill pill-p">Fundamentos de Redes</span>
+      <span class="pill pill-c">Linux</span>
+      <span class="pill pill-c">Administração de Sistemas</span>
+      <span class="pill pill-g">Inglês B2</span>
+      <span class="pill pill-a">Em formação contínua</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<hr class="divider">
+
+<!-- FORMAÇÃO -->
+<section id="formacao">
+  <div class="wrap">
+    <p class="sec-label reveal">03 · formação</p>
+    <h2 class="sec-title reveal">Educação</h2>
+    <div class="sec-rule reveal"></div>
+    <div class="edu-grid reveal">
+      <div class="edu-card">
+        <div class="edu-badge">EM ANDAMENTO</div>
+        <div class="edu-course">Tecnologia em Segurança da Informação</div>
+        <div class="edu-inst">SENAC</div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-badge">2022 – 2025</div>
+        <div class="edu-course">Tecnologia em Análise e Desenvolvimento de Sistemas</div>
+        <div class="edu-inst">Centro Universitário Brasileiro</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CERTIFICAÇÕES -->
+<section id="certs">
+  <div class="wrap">
+    <p class="sec-label reveal">04 · certificações</p>
+    <h2 class="sec-title reveal">Credenciais</h2>
+    <div class="sec-rule reveal"></div>
+    <div class="cert-list reveal">
+
+      <div class="cert-row">
+        <div class="cert-left">
+          <div class="cert-icon">🔐</div>
+          <div>
+            <div class="cert-name">ISC2 Certified in Cybersecurity (CC)</div>
+            <div class="cert-issuer">ISC2</div>
+          </div>
+        </div>
+        <span class="cert-status status-soon">em andamento</span>
+      </div>
+
+      <div class="cert-row">
+        <div class="cert-left">
+          <div class="cert-icon">🌐</div>
+          <div>
+            <div class="cert-name">Junior Cybersecurity Analyst</div>
+            <div class="cert-issuer">Cisco Networking Academy</div>
+          </div>
+        </div>
+        <span class="cert-status status-soon">em andamento</span>
+      </div>
+
+      <div class="cert-row">
+        <div class="cert-left">
+          <div class="cert-icon">🛡️</div>
+          <div>
+            <div class="cert-name">Foundations of Cybersecurity</div>
+            <div class="cert-issuer">Google</div>
+          </div>
+        </div>
+        <span class="cert-status status-done">concluído</span>
+      </div>
+
+      <div class="cert-row">
+        <div class="cert-left">
+          <div class="cert-icon">🔍</div>
+          <div>
+            <div class="cert-name">Cybersecurity Awareness</div>
+            <div class="cert-issuer">IBSEC – Instituto Brasileiro de Cibersegurança</div>
+          </div>
+        </div>
+        <span class="cert-status status-done">concluído</span>
+      </div>
+
+      <div class="cert-row">
+        <div class="cert-left">
+          <div class="cert-icon">🐧</div>
+          <div>
+            <div class="cert-name">Cybersecurity Essentials (LFC108)</div>
+            <div class="cert-issuer">The Linux Foundation</div>
+          </div>
+        </div>
+        <span class="cert-status status-done">concluído</span>
+      </div>
+
+      <div class="cert-row">
+        <div class="cert-left">
+          <div class="cert-icon">💻</div>
+          <div>
+            <div class="cert-name">Fundamentos de TI: Hardware e Software</div>
+            <div class="cert-issuer">Fundação Bradesco</div>
+          </div>
+        </div>
+        <span class="cert-status status-done">concluído</span>
+      </div>
+
+      <div class="cert-row">
+        <div class="cert-left">
+          <div class="cert-icon">⚙️</div>
+          <div>
+            <div class="cert-name">Fundamentos da Computação</div>
+            <div class="cert-issuer">IBSEC – Instituto Brasileiro de Cibersegurança</div>
+          </div>
+        </div>
+        <span class="cert-status status-done">concluído</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- HABILIDADES -->
+<section id="habilidades">
+  <div class="wrap">
+    <p class="sec-label reveal">05 · habilidades</p>
+    <h2 class="sec-title reveal">Competências técnicas</h2>
+    <div class="sec-rule reveal"></div>
+
+    <div class="skills-cols reveal">
+      <div>
+        <div class="skill-group-label">Sistemas & Infraestrutura</div>
+        <div class="skill-items">
+          <span class="pill pill-c">Linux</span>
+          <span class="pill pill-c">Windows Server</span>
+          <span class="pill pill-c">Redes de Computadores</span>
+          <span class="pill pill-c">TCP/IP</span>
+        </div>
+      </div>
+      <div>
+        <div class="skill-group-label">Segurança</div>
+        <div class="skill-items">
+          <span class="pill pill-p">Fundamentos de Cibersegurança</span>
+          <span class="pill pill-p">Análise de Vulnerabilidades</span>
+          <span class="pill pill-p">SIEM (base teórica)</span>
+        </div>
+      </div>
+      <div>
+        <div class="skill-group-label">Desenvolvimento & Dados</div>
+        <div class="skill-items">
+          <span class="pill pill-a">Banco de Dados</span>
+          <span class="pill pill-a">Lógica de Programação</span>
+          <span class="pill pill-a">SQL</span>
+        </div>
+      </div>
+      <div>
+        <div class="skill-group-label">Soft skills</div>
+        <div class="skill-items">
+          <span class="pill pill-g">Inglês B2</span>
+          <span class="pill pill-g">Gestão de processos</span>
+          <span class="pill pill-g">Suporte ao cliente</span>
+          <span class="pill pill-g">Aprendizado contínuo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CONTATO -->
+<section id="contato">
+  <div class="wrap">
+    <p class="sec-label reveal">06 · contato</p>
+    <h2 class="sec-title reveal">Contato Profissional</h2>
+    <div class="sec-rule reveal"></div>
+    <div class="contact-block reveal">
+      <div class="contact-links">
+        <a href="mailto:thiagovilar.sec@gmail.com" class="contact-link">
+          <span>email</span>
+          thiagovilar.sec@gmail.com
+        </a>
+        <a href="https://linkedin.com/in/thiago-fvilar" target="_blank" class="contact-link">
+          <span>linkedin</span>
+          linkedin.com/in/thiago-fvilar
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Thiago Vilar · 2026
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('revealed');
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
